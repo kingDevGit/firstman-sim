@@ -43,6 +43,8 @@ class Woman extends Human {
     spouse: string = '';
     isPregnant: boolean = false;
     pregnantDays: number = 0;
+    isResting: boolean = false;
+    restMonths: number = 0;
 
 }
 

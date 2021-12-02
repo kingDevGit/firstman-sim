@@ -9,7 +9,8 @@ const CONFIG = {
         'young': 0.25,
         'lady': 0.15,
         'mid': 0.05
-    }
+    },
+    monthsRestAfterDeliverBaby: 12
 }
 
 export default CONFIG

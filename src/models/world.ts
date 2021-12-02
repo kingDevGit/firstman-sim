@@ -153,7 +153,7 @@ class World {
         const createWoman = await this.women.bulkCreate(newBornGirls)
         const createMan = await this.men.bulkCreate(newBornBoys)
 
-        const womenResult = await this.women.update({ isPregnant: false, pregnantDays: 0 }, {
+        const womenResult = await this.women.update({ isPregnant: false, pregnantDays: 0, isResting:true, }, {
             where: {
                 uuid: finishedWomenId
             }
