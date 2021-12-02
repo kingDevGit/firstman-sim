@@ -100,7 +100,6 @@ class World {
 
     async giveBirth(months: number) {
 
-        const women = await this.db.query(`UPDATE "${this.women.getTableName()}" SET "pregnantDays"="pregnantDays" +${months * 30} WHERE "isAlive"= true AND "isPregnant"= true`, { type: QueryTypes.UPDATE });
 
         const waitEnoughForBirth = await this.women.findAll({
             where: {
@@ -118,7 +117,8 @@ class World {
         const parsed: Woman[] = dbArrayResultParse(waitEnoughForBirth, false);
         // Born new kid
 
-        const newBorns = []
+        const newBornGirls: any[] = []
+        const newBornBoys: any[] = []
         const afterBirthWomen = parsed.map(w => {
 
             const sexOfNewBorn = binaryDecider(CONFIG.chanceOfBoy) ? 'M' : 'F';
@@ -132,15 +132,31 @@ class World {
 
             w.isPregnant = false;
             w.pregnantDays = 0
-            w.children.push(newBorn.uuid)
-            newBorns.push(newBorn)
 
-
+            if (sexOfNewBorn == 'F') {
+                newBornGirls.push(newBorn)
+            }
+            else {
+                newBornBoys.push(newBorn)
+            }
+            return w
         })
 
         //need save to db
+        const finishedWomenId = afterBirthWomen.map(w => w.uuid);
 
-        console.log('Waiting for birth', parsed);
+        const createWoman = await this.women.bulkCreate(newBornGirls)
+        const createMan = await this.men.bulkCreate(newBornBoys)
+
+        const womenResult = await this.women.update({ isPregnant: false, pregnantDays: 0 }, {
+            where: {
+                uuid: finishedWomenId
+            }
+        });
+
+        console.log(`${womenResult} Babies born. ${createWoman} Girls ${createMan} Boys`)
+        await this.db.query(`UPDATE "${this.women.getTableName()}" SET "pregnantDays"="pregnantDays" +${months * 30} WHERE "isAlive"= true AND "isPregnant"= true`, { type: QueryTypes.UPDATE });
+
     }
 
 

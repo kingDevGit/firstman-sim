@@ -14,7 +14,6 @@ class Human {
     expectedLife: number = normalRandomScaled(CONFIG.lifeExpectancy, CONFIG.lifeDev)
     ageInMonths: number = 0
     gender: string = ''
-    children: Array<string> = []
     isAlive: boolean = true;
     bornYear: number = 0
     father: string = ''
