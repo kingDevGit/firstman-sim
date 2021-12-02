@@ -15,15 +15,17 @@ import {
     Optional,
 } from "sequelize";
 import { DbUtils } from '../lib/db';
+import { Universe } from './universe'
 
-class World {
+class World extends Universe {
 
     db: Sequelize
     men: any
     women: any
+    universe: any
 
     constructor(db: DbUtils) {
-
+        super();
         this.db = db.orm
         this.men = db.men
         this.women = db.women
@@ -31,40 +33,22 @@ class World {
 
 
     async tick() {
-
-
-
-
-
+        await this.peopleAging(3);
 
     }
 
 
 
-    async peopleAging() {
+    async peopleAging(months: number) {
 
         try {
-            const men = await this.db.query(`UPDATE '${this.men.getTableName()}' SET 'age'='age' +1 WHERE 'isAlive'= true`, { type: QueryTypes.UPDATE });
-            const women = await this.db.query(`UPDATE '${this.women.getTableName()}' SET 'age'='age' +1 WHERE 'isAlive'= true`, { type: QueryTypes.UPDATE });
-
-
-            const noah = await this.men.findAll({
-                where: {
-                    name: 'Noah'
-                }
-            })
-            console.log('NOAH age', noah)
+            const men = await this.db.query(`UPDATE "${this.men.getTableName()}" SET "ageInMonths"="ageInMonths" +${months} WHERE "isAlive"= true`, { type: QueryTypes.UPDATE });
+            const women = await this.db.query(`UPDATE "${this.women.getTableName()}" SET "ageInMonths"="ageInMonths" +${months} WHERE "isAlive"= true`, { type: QueryTypes.UPDATE });
         }
         catch (e) {
             console.log('E', e);
         }
     }
-
-
-
-
-    currentYear: number = 0
-    population: number = 0
 
 }
 

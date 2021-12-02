@@ -16,6 +16,8 @@ import {
     HasManyCreateAssociationMixin,
     Optional,
 } from "sequelize";
+import { World } from '../models/world';
+import { Universe } from '../models/universe';
 
 class DbUtils {
 
@@ -63,24 +65,26 @@ class DbUtils {
 
         try {
 
-            console.log('Transsss', modelTrans(new Man()))
-            this.men = this.orm.define('Men', modelTrans(new Man()), {
+            this.men = this.orm.define('Men', modelTrans(new Man('void')), {
                 freezeTableName: true
             });
 
-            this.women = this.orm.define('Women', modelTrans(new Woman()), {
+            this.women = this.orm.define('Women', modelTrans(new Woman('void')), {
                 freezeTableName: true
             });
+
+            this.universe = this.orm.define('Universe', modelTrans(new Universe()), {
+                freezeTableName: true
+            })
 
             await this.orm.sync({ force: true });
-
-
-            const noah: any = await this.men.create(firstMan);
-            const ademy: any = await this.women.create(firstWoman);
+            const universe = await this.universe.create(new Universe());
+            const noah: any = await this.men.create(new Man(universe.uuid, firstMan));
+            const ademy: any = await this.women.create(new Man(universe.uuid, firstWoman));
 
             console.log(`[ORM] Table created with one man ${noah.name} with expected life of ${noah.expectedLife}`,);
             console.log(`[ORM] Table created with one man ${ademy.name} with expected life of ${ademy.expectedLife}`,);
-    
+
 
         } catch (e) {
 
@@ -93,6 +97,7 @@ class DbUtils {
     orm!: Sequelize
     men: any
     women: any
+    universe: any
 
     db!: Database
 

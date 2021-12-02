@@ -4,19 +4,26 @@ import { normalRandomScaled } from '../lib/random'
 import CONFIG from '../constants/config'
 class Human {
 
-    constructor() {
+    constructor(universe: string) {
         this.uuid = v4()
+        this.universe = universe
 
     }
     uuid: string
     name: string = ''
     expectedLife: number = normalRandomScaled(CONFIG.lifeExpectancy, CONFIG.lifeDev)
-    age: number = 0
+    ageInMonths: number = 0
     gender: string = ''
-    children: Array<string> = [];
+    children: Array<string> = []
     isAlive: boolean = true;
     bornYear: number = 0
     father: string = ''
+    universe: string = ''
+
+
+    get age() {
+        return this.ageInMonths / 12
+    }
 
 }
 
@@ -25,10 +32,13 @@ class Human {
 class Woman extends Human {
 
 
-    constructor() {
-        super();
+    constructor(universe: string, init?: Partial<Woman>) {
+        super(universe);
         this.gender = 'F'
         this.name = randomName({ gender: 'female' })
+        if (!!init) {
+            Object.assign(this, init)
+        }
     }
     spouse: string = '';
     isPregant: boolean = false;
@@ -38,10 +48,13 @@ class Woman extends Human {
 
 class Man extends Human {
 
-    constructor() {
-        super();
+    constructor(universe: string, init?: Partial<Man>) {
+        super(universe);
         this.gender = 'M'
         this.name = randomName({ gender: 'male' })
+        if (!!init) {
+            Object.assign(this, init)
+        }
     }
 
     spouses: Array<string> = [];
