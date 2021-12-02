@@ -79,8 +79,10 @@ class DbUtils {
 
             await this.orm.sync({ force: true });
             const universe = await this.universe.create(new Universe());
+            this.universeId = universe.uuid;
+            console.log('UNIVERSE ID', this.universeId)
             const noah: any = await this.men.create(new Man(universe.uuid, firstMan));
-            const ademy: any = await this.women.create(new Man(universe.uuid, firstWoman));
+            const ademy: any = await this.women.create(new Woman(universe.uuid, firstWoman));
 
             console.log(`[ORM] Table created with one man ${noah.name} with expected life of ${noah.expectedLife}`,);
             console.log(`[ORM] Table created with one man ${ademy.name} with expected life of ${ademy.expectedLife}`,);
@@ -98,7 +100,7 @@ class DbUtils {
     men: any
     women: any
     universe: any
-
+    universeId: string = ''
     db!: Database
 
     close() {
@@ -136,7 +138,12 @@ const modelTrans = (model: any) => {
             type: typeTrans(t.type),
             get() {
                 const rawValue = this.getDataValue(t.name);
-                return JSON.parse(rawValue);
+                if (typeof rawValue === 'string') {
+
+                    return JSON.parse(rawValue);
+                } else {
+                    return rawValue
+                }
             },
             set(value: any) {
                 this.setDataValue(t.name, JSON.stringify(value));
@@ -161,4 +168,10 @@ const typeTrans = (type: string) => {
 
 }
 
-export { DbUtils }
+const dbArrayResultParse = (array: any, isMan: boolean = true) => {
+
+    const result = array.map((a: any) => isMan ? new Man(a.dataValues.universeId, a.dataValues) : new Woman(a.dataValues.universeId, a.dataValues))
+    return result
+}
+
+export { DbUtils, dbArrayResultParse }

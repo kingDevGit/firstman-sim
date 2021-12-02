@@ -8,7 +8,7 @@ const buildWorld = async () => {
     const db = new DbUtils();
     await db.bootstrap();
     const world = new World(db)
-    await world.tick();
+    await world.tick(3);
 }
 
 

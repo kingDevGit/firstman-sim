@@ -3,21 +3,19 @@ import { v4 } from 'uuid';
 class Universe {
 
     constructor() {
-        this.currentYear = 0
+        this.currentMonth = 0
         this.population = 0
         this.uuid = v4()
     }
 
 
     uuid: string
-    currentYear: number
+    currentMonth: number
     population: number
 
-
-
-
-
-
+    get currentYear() {
+        return this.currentMonth / 12;
+    }
 
 }
 export { Universe }

@@ -4,9 +4,9 @@ import { normalRandomScaled } from '../lib/random'
 import CONFIG from '../constants/config'
 class Human {
 
-    constructor(universe: string) {
+    constructor(universeId: string) {
         this.uuid = v4()
-        this.universe = universe
+        this.universeId = universeId
 
     }
     uuid: string
@@ -18,7 +18,8 @@ class Human {
     isAlive: boolean = true;
     bornYear: number = 0
     father: string = ''
-    universe: string = ''
+    mother: string = ''
+    universeId: string = ''
 
 
     get age() {
@@ -41,7 +42,7 @@ class Woman extends Human {
         }
     }
     spouse: string = '';
-    isPregant: boolean = false;
+    isPregnant: boolean = false;
     pregnantDays: number = 0;
 
 }
