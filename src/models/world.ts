@@ -171,9 +171,10 @@ class World {
         try {
             const men = await this.db.query(`UPDATE "${this.men.getTableName()}" SET "ageInMonths"="ageInMonths" +${months} WHERE "isAlive"= true`, { type: QueryTypes.UPDATE });
             const women = await this.db.query(`UPDATE "${this.women.getTableName()}" SET "ageInMonths"="ageInMonths" +${months} WHERE "isAlive"= true`, { type: QueryTypes.UPDATE });
+            const restingWomen = await this.db.query(`UPDATE "${this.women.getTableName()}" SET "restMonths"="restMonths" +${months} WHERE "isAlive"= true AND "isResting"=true`, { type: QueryTypes.UPDATE });
 
             this.universe.increment({ currentMonth: months }, { where: { uuid: this.universeId } })
-
+// TODO need to reset rest day 
 
 
             console.log('Universe', this.universeId);
