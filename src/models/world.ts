@@ -177,6 +177,22 @@ class World {
             console.log('E', e);
         }
     }
+
+    async summary() {
+        const menAliveCount = await this.men.count({
+            where: {
+                isAlive: true
+            }
+        })
+        const womenAliveCount = await this.women.count({
+            where: {
+                isAlive: true
+            }
+        })
+
+
+        console.log('Alive Human count', menAliveCount, womenAliveCount)
+    }
 }
 
 
