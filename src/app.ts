@@ -9,9 +9,9 @@ const buildWorld = async () => {
     await db.bootstrap();
     const world = new World(db)
 
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 150; i++) {
 
-        await world.tick(3);
+        await world.tick(1);
     }
     await world.summary();
 }

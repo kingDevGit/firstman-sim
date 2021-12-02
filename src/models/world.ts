@@ -79,12 +79,12 @@ class World {
                 ageGroup = 'imd'
             }
 
-            w.isPregnant = binaryDecider(chanceToPregnant[ageGroup])
+            w.isPregnant = binaryDecider(chanceToPregnant[ageGroup]*0.5,'REPRODUCT')
             return w
         }
         )
 
-        const filteredWomen = decide.filter(w => !w.isPregnant);
+        const filteredWomen = decide.filter(w => w.isPregnant);
         const pregnantIDs = filteredWomen.map(w => w.uuid);
 
 
@@ -96,6 +96,11 @@ class World {
         });
 
         console.log('[Reproduce] Amount', result)
+    }
+    async triggerMarriage() {
+
+
+
     }
 
     async giveBirth(months: number) {
@@ -196,9 +201,12 @@ class World {
 }
 
 
-const binaryDecider = (probability: number) => {
+const binaryDecider = (probability: number, remark?: string) => {
+    const result = Math.random() < probability;
 
-    return Math.random() < probability;
+    console.log('Decided for probability', probability, result,remark)
+
+    return result
 
 }
 
