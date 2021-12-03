@@ -66,26 +66,28 @@ class DbUtils {
         try {
 
             this.men = this.orm.define('Men', modelTrans(new Man('void')), {
-                freezeTableName: true
+                freezeTableName: true,
+                timestamps:false
             });
 
             this.women = this.orm.define('Women', modelTrans(new Woman('void')), {
-                freezeTableName: true
+                freezeTableName: true,
+                timestamps:false
+
             });
 
             this.universe = this.orm.define('Universe', modelTrans(new Universe()), {
-                freezeTableName: true
+                freezeTableName: true,
+                timestamps:false
             })
 
             await this.orm.sync({ force: true });
             const universe = await this.universe.create(new Universe());
             this.universeId = universe.uuid;
             console.log('UNIVERSE ID', this.universeId)
-            const noah: any = await this.men.create(new Man(universe.uuid, firstMan));
-            const ademy: any = await this.women.create(new Woman(universe.uuid, firstWoman));
+            const noah: any = await this.men.create(new Man(universe.uuid));
+            const ademy: any = await this.women.create(new Woman(universe.uuid));
 
-            console.log(`[ORM] Table created with one man ${noah.name} with expected life of ${noah.expectedLife}`,);
-            console.log(`[ORM] Table created with one man ${ademy.name} with expected life of ${ademy.expectedLife}`,);
 
 
         } catch (e) {
@@ -187,8 +189,6 @@ const dbArrayResultParse = (array: any, isMan: boolean = true) => {
     let result: any[] = new Array(array.length);
 
     for (let i = 0; i < array.length; i++) {
-        delete array[i].dataValues.createdAt
-        delete array[i].dataValues.updatedAt
         result[i]=isMan ? new Man(array[i].dataValues.universeId, array[i].dataValues) : new Woman(array[i].dataValues.universeId, array[i].dataValues)
     }
 

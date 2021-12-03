@@ -4,8 +4,6 @@ import {
     Sequelize,
     QueryTypes,
     Model,
-    ModelDefined,
-    DataTypes,
     HasManyGetAssociationsMixin,
     HasManyAddAssociationMixin,
     HasManyHasAssociationMixin,
@@ -197,12 +195,15 @@ class World {
             w.isPregnant = false;
             w.pregnantDays = 0
 
-            if (sexOfNewBorn == 'F') {
-                newBornGirls.push(newBorn)
+            if(binaryDecider(CONFIG.babySurvivalRate)){
+                if (sexOfNewBorn == 'F') {
+                    newBornGirls.push(newBorn)
+                }
+                else {
+                    newBornBoys.push(newBorn)
+                }
             }
-            else {
-                newBornBoys.push(newBorn)
-            }
+
             return w
         })
 

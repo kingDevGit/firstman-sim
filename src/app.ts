@@ -5,6 +5,9 @@ import { World } from './models/world';
 
 const buildWorld = async () => {
 
+    console.time = ()=>{};
+    console.timeEnd= ()=>{};
+
     const db = new DbUtils();
     await db.bootstrap();
     const world = new World(db)
@@ -18,6 +21,8 @@ const buildWorld = async () => {
             console.log('--------------------')
         }
     }
+    await world.summary();
+
 }
 
 
