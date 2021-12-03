@@ -45,7 +45,7 @@ class DbUtils {
 
                 console.log('[ORM] Connecting to ORM...')
 
-                this.orm = new Sequelize('sqlite::memory:')
+                this.orm = new Sequelize('sqlite::memory:', { logging: false })
 
                 return resolve()
             });
@@ -133,6 +133,19 @@ const modelTrans = (model: any) => {
     let ormModel: any = {};
 
     trans.map(t => {
+
+
+        if (t.name == 'uuid') {
+
+            ormModel['uuid'] = {
+                type: DataTypes.STRING,
+                primaryKey: true
+            }
+
+            return
+        }
+
+
         ormModel[t.name] = t.type == 'object' ? {
 
             type: typeTrans(t.type),
@@ -170,7 +183,25 @@ const typeTrans = (type: string) => {
 
 const dbArrayResultParse = (array: any, isMan: boolean = true) => {
 
-    const result = array.map((a: any) => isMan ? new Man(a.dataValues.universeId, a.dataValues) : new Woman(a.dataValues.universeId, a.dataValues))
+
+    let result: any[] = new Array(array.length);
+
+    for (let i = 0; i < array.length; i++) {
+        delete array[i].dataValues.createdAt
+        delete array[i].dataValues.updatedAt
+        result[i]=isMan ? new Man(array[i].dataValues.universeId, array[i].dataValues) : new Woman(array[i].dataValues.universeId, array[i].dataValues)
+    }
+
+
+
+    // const result = array.map((a: any) => {
+
+    //     delete a.dataValues.createdAt
+    //     delete a.dataValues.updatedAt
+
+    //     return isMan ? new Man(a.dataValues.universeId, a.dataValues) : new Woman(a.dataValues.universeId, a.dataValues)
+    // })
+
     return result
 }
 

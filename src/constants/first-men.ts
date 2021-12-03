@@ -1,28 +1,28 @@
 const firstMan = {
-    uuid: 'Iamthefirstman',
+    uuid: 'firstMen',
     name: 'Noah',
-    expectedLife: 30,
-    ageInMonths: 240,
+    expectedLife: 50,
+    ageInMonths: 0,
     gender: 'M',
     children: [],
     isAlive: true,
     bornYear: 0,
     father: 'PC',
-    spouses: ['IamthefirstWoman']
+    spousesCount: 0
 }
 
 
 const firstWoman = {
-    uuid: 'IamthefirstWoman',
+    uuid: 'firstWomen',
     name: 'Ademy',
-    expectedLife: 30,
-    ageInMonths: 240,
+    expectedLife: 50,
+    ageInMonths: 0,
     gender: 'F',
     children: [],
     isAlive: true,
     bornYear: 0,
     father: 'PC',
-    spouse: 'Iamthefirstman'
+    spouse: ''
 }
 
 export { firstWoman, firstMan }

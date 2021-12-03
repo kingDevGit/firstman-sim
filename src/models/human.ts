@@ -59,8 +59,7 @@ class Man extends Human {
         }
     }
 
-    spouses: Array<string> = [];
-
+    spousesCount: number = 0
 }
 
 export { Man, Woman }
