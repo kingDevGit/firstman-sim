@@ -1,7 +1,7 @@
 const firstMan = {
     uuid: 'Iamthefirstman',
     name: 'Noah',
-    expectedLife: 100,
+    expectedLife: 30,
     ageInMonths: 240,
     gender: 'M',
     children: [],
@@ -15,7 +15,7 @@ const firstMan = {
 const firstWoman = {
     uuid: 'IamthefirstWoman',
     name: 'Ademy',
-    expectedLife: 100,
+    expectedLife: 30,
     ageInMonths: 240,
     gender: 'F',
     children: [],

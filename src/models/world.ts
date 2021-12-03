@@ -40,28 +40,36 @@ class World {
         await this.peopleAging(months);
         await this.giveBirth(months)
         await this.triggerReproduce();
-
+        await this.dustYouShallReturn();
     }
 
     async triggerReproduce() {
+
+        console.log('Trigger Reproduce');
         const marriedAndNotPreganantDb = await this.women.findAll({
             where: {
                 [Op.and]: [{
                     spouse: {
-                        [Op.not]: null,
+                        [Op.not]: '',
                     }
                 },
+                { isResting: false },
                 {
                     isPregnant: false
                 }, {
                     ageInMonths:
                         { [Op.between]: [CONFIG.minAgeAbleToPregnant * 12, CONFIG.maxAgeAbleToPregnant * 12] }
                 },
-                { isAlive: true }]
+                { isAlive: true },
+                ]
             }
         })
 
         const marriedAndNotPreganant: Woman[] = dbArrayResultParse(marriedAndNotPreganantDb, false)
+
+        if (marriedAndNotPreganant.length == 0) {
+            return
+        }
 
         const decide = marriedAndNotPreganant.map(w => {
             const chanceToPregnant: any = config.chanceToPregnant
@@ -79,7 +87,7 @@ class World {
                 ageGroup = 'imd'
             }
 
-            w.isPregnant = binaryDecider(chanceToPregnant[ageGroup]*0.5,'REPRODUCT')
+            w.isPregnant = binaryDecider(chanceToPregnant[ageGroup] * 0.5, 'REPRODUCT')
             return w
         }
         )
@@ -87,15 +95,17 @@ class World {
         const filteredWomen = decide.filter(w => w.isPregnant);
         const pregnantIDs = filteredWomen.map(w => w.uuid);
 
+        if (pregnantIDs.length > 0) {
+            const result = await this.women.update({ isPregnant: true }, {
+                where: {
+                    uuid: pregnantIDs
+                }
+            });
+
+            console.log('[Reproduce] Amount', result)
+        }
 
 
-        const result = await this.women.update({ isPregnant: true }, {
-            where: {
-                uuid: pregnantIDs
-            }
-        });
-
-        console.log('[Reproduce] Amount', result)
     }
     async triggerMarriage() {
 
@@ -126,7 +136,7 @@ class World {
         const newBornBoys: any[] = []
         const afterBirthWomen = parsed.map(w => {
 
-            const sexOfNewBorn = binaryDecider(CONFIG.chanceOfBoy) ? 'M' : 'F';
+            const sexOfNewBorn = binaryDecider(CONFIG.chanceOfBoy, 'SE') ? 'M' : 'F';
 
             const basicInfo = {
                 mother: w.uuid,
@@ -150,17 +160,27 @@ class World {
         //need save to db
         const finishedWomenId = afterBirthWomen.map(w => w.uuid);
 
-        const createWoman = await this.women.bulkCreate(newBornGirls)
-        const createMan = await this.men.bulkCreate(newBornBoys)
+        if (newBornGirls.length > 0) {
+            const createWoman = await this.women.bulkCreate(newBornGirls)
+        }
 
-        const womenResult = await this.women.update({ isPregnant: false, pregnantDays: 0, isResting:true, }, {
+        if (newBornBoys.length > 0) {
+            const createMan = await this.men.bulkCreate(newBornBoys)
+        }
+
+        const womenResult = await this.women.update({ isPregnant: false, pregnantDays: 0, isResting: true, }, {
             where: {
                 uuid: finishedWomenId
             }
         });
 
-        console.log(`${womenResult} Babies born. ${createWoman} Girls ${createMan} Boys`)
-        await this.db.query(`UPDATE "${this.women.getTableName()}" SET "pregnantDays"="pregnantDays" +${months * 30} WHERE "isAlive"= true AND "isPregnant"= true`, { type: QueryTypes.UPDATE });
+        console.log(`${womenResult} Babies born.`)
+
+    }
+    async dustYouShallReturn() {
+        const menDieTick = await this.db.query(`UPDATE "${this.men.getTableName()}" SET "isAlive"=false WHERE "isAlive"= true AND "ageInMonths">="expectedLife"*12`, { type: QueryTypes.UPDATE });
+        const womenDieTick = await this.db.query(`UPDATE "${this.women.getTableName()}" SET "isAlive"=false WHERE "isAlive"= true AND "ageInMonths">="expectedLife"*12`, { type: QueryTypes.UPDATE });
+
 
     }
 
@@ -169,15 +189,13 @@ class World {
     async peopleAging(months: number) {
 
         try {
-            const men = await this.db.query(`UPDATE "${this.men.getTableName()}" SET "ageInMonths"="ageInMonths" +${months} WHERE "isAlive"= true`, { type: QueryTypes.UPDATE });
-            const women = await this.db.query(`UPDATE "${this.women.getTableName()}" SET "ageInMonths"="ageInMonths" +${months} WHERE "isAlive"= true`, { type: QueryTypes.UPDATE });
-            const restingWomen = await this.db.query(`UPDATE "${this.women.getTableName()}" SET "restMonths"="restMonths" +${months} WHERE "isAlive"= true AND "isResting"=true`, { type: QueryTypes.UPDATE });
+            const menAgingTick = await this.db.query(`UPDATE "${this.men.getTableName()}" SET "ageInMonths"="ageInMonths" +${months} WHERE "isAlive"= true`, { type: QueryTypes.UPDATE });
+            const womenAgingTick = await this.db.query(`UPDATE "${this.women.getTableName()}" SET "ageInMonths"="ageInMonths" +${months} WHERE "isAlive"= true`, { type: QueryTypes.UPDATE });
+            const pregnantMonthsTick = await this.db.query(`UPDATE "${this.women.getTableName()}" SET "pregnantDays"="pregnantDays" +${months * 30} WHERE "isAlive"= true AND "isPregnant"= true`, { type: QueryTypes.UPDATE });
+            const restingWomenTick = await this.db.query(`UPDATE "${this.women.getTableName()}" SET "restMonths"="restMonths" +${months} WHERE "isAlive"= true AND "isResting"=true`, { type: QueryTypes.UPDATE });
+            const unrestWomen = await this.db.query(`UPDATE "${this.women.getTableName()}" SET "isResting"=false,"restMonths"=0  WHERE "isAlive"= true AND "restMonths">=${CONFIG.monthsRestAfterDeliverBaby}`, { type: QueryTypes.UPDATE });
 
             this.universe.increment({ currentMonth: months }, { where: { uuid: this.universeId } })
-// TODO need to reset rest day 
-
-
-            console.log('Universe', this.universeId);
         }
         catch (e) {
             console.log('E', e);
@@ -196,8 +214,22 @@ class World {
             }
         })
 
+        const menDeadCount = await this.men.count({
+            where: {
+                isAlive: false
+            }
+        })
+        const womenDeadCount = await this.women.count({
+            where: {
+                isAlive: false
+            }
+        })
+        const universe = await this.universe.findOne({ where: { uuid: this.universeId } })
 
         console.log('Alive Human count', menAliveCount, womenAliveCount)
+        console.log('Dead men count', menDeadCount, womenDeadCount)
+        console.log('Universe',universe)
+
     }
 }
 
@@ -205,7 +237,7 @@ class World {
 const binaryDecider = (probability: number, remark?: string) => {
     const result = Math.random() < probability;
 
-    console.log('Decided for probability', probability, result,remark)
+    console.log('Decided for probability ', remark, probability, result)
 
     return result
 
