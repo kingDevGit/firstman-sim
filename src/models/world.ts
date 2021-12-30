@@ -195,7 +195,7 @@ class World {
             w.isPregnant = false;
             w.pregnantDays = 0
 
-            if(binaryDecider(CONFIG.babySurvivalRate)){
+            if (binaryDecider(CONFIG.babySurvivalRate)) {
                 if (sexOfNewBorn == 'F') {
                     newBornGirls.push(newBorn)
                 }
@@ -207,12 +207,12 @@ class World {
             return w
         })
 
-        //need save to db
         const finishedWomenId = afterBirthWomen.map(w => w.uuid);
 
         if (newBornGirls.length > 0) {
             const createWoman = await this.women.bulkCreate(newBornGirls)
         }
+
 
         if (newBornBoys.length > 0) {
             const createMan = await this.men.bulkCreate(newBornBoys)
@@ -241,15 +241,22 @@ class World {
     async peopleAging(months: number) {
         console.time('aging');
 
-            const menAgingTick = await this.db.query(`UPDATE "${this.men.getTableName()}" SET "ageInMonths"="ageInMonths" +${months} WHERE "isAlive"= true`, { type: QueryTypes.UPDATE });
-            const womenAgingTick = await this.db.query(`UPDATE "${this.women.getTableName()}" SET "ageInMonths"="ageInMonths" +${months} WHERE "isAlive"= true`, { type: QueryTypes.UPDATE });
-            const pregnantMonthsTick = await this.db.query(`UPDATE "${this.women.getTableName()}" SET "pregnantDays"="pregnantDays" +${months * 30} WHERE "isAlive"= true AND "isPregnant"= true`, { type: QueryTypes.UPDATE });
-            const restingWomenTick = await this.db.query(`UPDATE "${this.women.getTableName()}" SET "restMonths"="restMonths" +${months} WHERE "isAlive"= true AND "isResting"=true`, { type: QueryTypes.UPDATE });
-            const unrestWomen = await this.db.query(`UPDATE "${this.women.getTableName()}" SET "isResting"=false,"restMonths"=0  WHERE "isAlive"= true AND "restMonths">=${CONFIG.monthsRestAfterDeliverBaby}`, { type: QueryTypes.UPDATE });
+        const menAgingTick = await this.db.query(`UPDATE "${this.men.getTableName()}" SET "ageInMonths"="ageInMonths" +${months} WHERE "isAlive"= true`, { type: QueryTypes.UPDATE });
+        const womenAgingTick = await this.db.query(`UPDATE "${this.women.getTableName()}" SET "ageInMonths"="ageInMonths" +${months} WHERE "isAlive"= true`, { type: QueryTypes.UPDATE });
+        const pregnantMonthsTick = await this.db.query(`UPDATE "${this.women.getTableName()}" SET "pregnantDays"="pregnantDays" +${months * 30} WHERE "isAlive"= true AND "isPregnant"= true`, { type: QueryTypes.UPDATE });
+        const restingWomenTick = await this.db.query(`UPDATE "${this.women.getTableName()}" SET "restMonths"="restMonths" +${months} WHERE "isAlive"= true AND "isResting"=true`, { type: QueryTypes.UPDATE });
+        const unrestWomen = await this.db.query(`UPDATE "${this.women.getTableName()}" SET "isResting"=false,"restMonths"=0  WHERE "isAlive"= true AND "restMonths">=${CONFIG.monthsRestAfterDeliverBaby}`, { type: QueryTypes.UPDATE });
 
-            this.universe.increment({ currentMonth: months }, { where: { uuid: this.universeId } })
-            console.timeEnd('aging');
+        this.universe.increment({ currentMonth: months }, { where: { uuid: this.universeId } })
+        console.timeEnd('aging');
 
+    }
+
+    async totalSummary(){
+        const menAgingTick = await this.db.query(`
+       SELECT MAX("CHILD"),"father" FROM (SELECT "father", COUNT("father") AS "CHILD" from (SELECT "father" from  "${this.men.getTableName()}" UNION ALL SELECT "father" from "${this.women.getTableName()}") GROUP BY "father")`, { type: QueryTypes.SELECT });
+
+        console.log('TOTAL SUMMARY', menAgingTick);
     }
 
     async summary() {
@@ -299,6 +306,7 @@ class World {
         const maxSpouses = await this.men.max('spousesCount');
         const menMaxLife = await this.men.max('ageInMonths', { where: { isAlive: false } });
         const menMinLife = await this.men.min('ageInMonths', { where: { isAlive: false } });
+        const unpregantW = await this.women.count({where:{ [Op.and]:[{isAlive:true},{isPregnant:true},{ageInMonths:{[Op.between]:[CONFIG.ageAbleToPregnant[0]*12,CONFIG.ageAbleToPregnant[1]*12]}}]}})
 
 
         console.log('Men life range', menMinLife / 12, ' - ', menMaxLife / 12)
@@ -307,9 +315,13 @@ class World {
         console.log('Toxic JJ', toxicJJCount);
         console.log('Max Spouses', maxSpouses);
         console.log('Universe years passed', universe.dataValues.currentMonth / 12)
+        console.log('Unpregant Women',unpregantW)
 
 
-
+        return {
+            yearPassed: Math.round(universe.dataValues.currentMonth / 12),
+            population: menAliveCount + womenAliveCount
+        }
 
     }
 }

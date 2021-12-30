@@ -34,6 +34,11 @@
   resolved "https://registry.yarnpkg.com/@tsconfig/node16/-/node16-1.0.2.tgz#423c77877d0569db20e1fc80885ac4118314010e"
   integrity sha512-eZxlbI8GZscaGS7kkc/trHTT5xgrjH3/1n2JDwusC9iahPKWMRvRjJSAN5mCXviuTGQ/lHnhvv8Q1YTpnfz9gA==
 
+"@types/d3@^3":
+  version "3.5.46"
+  resolved "https://registry.yarnpkg.com/@types/d3/-/d3-3.5.46.tgz#8b890138ea035b703ef4cdd2de0d86f8619c1c69"
+  integrity sha512-jNHfiGd41+JUV43LTMzQNidyp4Hn0XfhoSmy8baE0d/N5pGYpD+yX03JacY/MH+smFxYOQGXlz4HxkRZOuRNOQ==
+
 "@types/debug@^4.1.7":
   version "4.1.7"
   resolved "https://registry.yarnpkg.com/@types/debug/-/debug-4.1.7.tgz#7cc0ea761509124709b8b2d1090d8f6c17aadb82"
@@ -50,6 +55,13 @@
   version "16.11.11"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.11.tgz#6ea7342dfb379ea1210835bada87b3c512120234"
   integrity sha512-KB0sixD67CeecHC33MYn+eYARkqTheIRNuu97y2XMjR7Wu3XibO1vaY6VBV6O/a89SPI81cEUIYT87UqUWlZNw==
+
+"@types/plotly.js@^1.54.16":
+  version "1.54.17"
+  resolved "https://registry.yarnpkg.com/@types/plotly.js/-/plotly.js-1.54.17.tgz#346844049bed5675907122f83e29640ada4cf411"
+  integrity sha512-2nk1jEDQ85Ix6SQsC7M7Otl5M8OoYwTl7V/x2ptyX373slUJAj+vQ3njYGy/h9p/rxTq7W0fn3JvXjuxXuA0Qg==
+  dependencies:
+    "@types/d3" "^3"
 
 "@types/sqlite3@^3.1.7":
   version "3.1.7"
@@ -655,6 +667,13 @@ node-random-name@^1.0.1:
   integrity sha1-niQEx6AeCQWi92Fogh7bLc0U91g=
   dependencies:
     alea "0.0.9"
+
+nodeplotlib@^0.7.6:
+  version "0.7.6"
+  resolved "https://registry.yarnpkg.com/nodeplotlib/-/nodeplotlib-0.7.6.tgz#8925d917f1497d7fec09257181542d77be4fadc8"
+  integrity sha512-iqU2jAnGWNJ/esP7N/hloOKR2TiYRguv3Fn+kcBIrkd+xMICixCOh6y11cG0phFxDviG36Ti9czAqhzz5jMadw==
+  dependencies:
+    "@types/plotly.js" "^1.54.16"
 
 "nopt@2 || 3":
   version "3.0.6"

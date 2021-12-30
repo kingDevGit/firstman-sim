@@ -85,8 +85,8 @@ class DbUtils {
             const universe = await this.universe.create(new Universe());
             this.universeId = universe.uuid;
             console.log('UNIVERSE ID', this.universeId)
-            const noah: any = await this.men.create(new Man(universe.uuid));
-            const ademy: any = await this.women.create(new Woman(universe.uuid));
+            const noah: any = await this.men.create(new Man(universe.uuid,{ageInMonths:216, father:'PC'}));
+            const ademy: any = await this.women.create(new Woman(universe.uuid,{ageInMonths:216, father:'PC'}));
 
 
 
